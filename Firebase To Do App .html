@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-database.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-analytics.js"></script>
+
+</head>
+<body>
+
+  <div class="container ">
+    <div class="col-lg-6 m-auto  ">
+      <div class="">
+        
+        <!-- <h1 class="text-center text-primary text-uppercase">Firebase <span style="color: deeppink">Todo App</span></h1> -->
+        <div class="card mt-4 shadow">
+          <div class="card-subtitle ">
+            <div class="bg-primary">
+             <h1 class="text-center text-white text-uppercase">Firebase <span style="color: deeppink">(Todo App)</span></h1>
+              
+
+            </div>
+           </div>
+
+
+           <div class="container col-lg-6 mb-5">
+           <form class="" id="form">
+             
+             <div class="form-group mt-3">
+              <label>Student Name</label>
+              <input type="text" name="" class="form-control " id="std_name" required="" autocomplete="off" autofocus="" placeholder="Enter Your Name">
+             </div>
+
+             <div class="form-group">
+              <label>Course</label>
+              <input type="text" name="" class="form-control " id="course" required="" autocomplete="off" placeholder="Enter Your Course Name">
+
+             </div>
+
+             <button class="btn-primary btn " id="submit" >Add </button>
+
+
+           </form>
+
+
+           </div>
+
+          
+        </div>
+      </div>
+
+      <div  class="table-responsive pt-3">
+        
+        <div>
+
+              <table class="table   table-striped text-center" id="table">
+
+              </table>
+
+       <div>
+
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
+
+
+
+<script>
+  
+
+    var firebaseConfig = 
+    {
+
+    apiKey: "AIzaSyA3Hftkf7ZFZd1WjGHxFF3cP4ce-Ek2F-8",
+    authDomain: "fir-todo-app-e8a9b.firebaseapp.com",
+    databaseURL: "https://fir-todo-app-e8a9b.firebaseio.com",
+    projectId: "fir-todo-app-e8a9b",
+    storageBucket: "fir-todo-app-e8a9b.appspot.com",
+    messagingSenderId: "11140156757",
+    appId: "1:11140156757:web:f22d7fa868d40d3ac4f3dc",
+    measurementId: "G-QYJGPGRXLZ"
+
+  };
+  
+
+
+
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
+
+  let id = 0; 
+  let show
+  
+
+  document.getElementById('form').onsubmit = (e) =>
+  {
+
+     let std_name = document.getElementById('std_name')
+     let course = document.getElementById('Course')
+
+     e.preventDefault()
+     Add_Data()
+     document.getElementById('form').reset()
+  };
+
+    Add_Data = () =>
+    {
+        id++
+        let StdData =
+        {
+            id:id,
+            name:std_name.value,
+            course:course.value
+        }
+
+      
+
+       let frb = firebase.database().ref('Students Data/').push(StdData).key
+       Fetch_Data()
+
+    
+   };
+
+     
+  
+
+  Fetch_Data = () =>
+  {
+        let table =''
+        firebase.database().ref('Students Data').on('value',function(dt)
+        {
+
+        
+            dt.forEach((element) =>
+            {
+                show = element.val()
+                
+              table+=`
+              
+              <tr class="text-center bg-primary text-white">
+              <th>Id</th>
+              <th>Name</th>
+              <th>Course</th>
+              <th colspan="2">Actions</th>
+
+              </tr>
+              
+
+              <tr class="text-center">
+              <td>${show.id}</td>
+             
+              <td>${show.name}</td>
+            
+              <td>${show.course}</td>
+              <td><button class="btn btn-danger" onclick="Delete('${element.key}')">Delete</button></td>
+              <td><button class="btn btn-warning" onclick="Update('${element.key}')">Update</button></td>
+
+
+              </tr>`
+                
+
+            });
+
+            document.getElementById('table').innerHTML = table
+            
+
+
+        });
+  };
+
+Fetch_Data()  
+
+
+    Delete = (id) =>
+    {
+         if (confirm('Do You What to Delete') == true) 
+         {
+
+                firebase.database().ref('Students Data').child(id).remove((er)=>
+                {
+                     if (er)
+                      {
+                        alert(er)
+                      }
+                      else
+                      {
+                        
+                        Fetch_Data()
+                        
+
+                      }
+
+                });
+         }
+
+    };
+
+    
+    // Edit = () =>
+    // {
+          
+    //         let as = document.getElementsByClassName('btn-warning')[0].getAttribute('onclick')
+            
+
+    //      console.log(as)
+    //         if (as !=="")
+    //        {
+
+       
+
+    //            firebase.database().ref('Students Data').child(as).on('value', function(dts)
+    //             {
+    //               let data = dts.val()
+    //               console.log(data)
+    //               std_name = data.name
+    //               course = data.course
+
+    //             });
+
+    //        }
+    // };
+
+    // Edit()
+
+
+
+    Update = (id) =>
+    {
+         
+     console.log(id)
+      
+         firebase.database().ref('Students Data/-MEjAix7LMvaocMXAq4_').set(
+         {
+             key:'-MEjAix7LMvaocMXAq4_',
+             name:'Hazab',
+             course:'Java Script'
+         });
+        
+    };
+
+
+
+
+
+
+</script>
